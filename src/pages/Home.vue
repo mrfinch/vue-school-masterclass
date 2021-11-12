@@ -1,23 +1,25 @@
 <template>
   <div>
     <h1>Welcome to forum</h1>
-    <thread-list
-      :threads="threads"
+    <category-list
+      :forums="forums"
+      :categories="categories"
     />
   </div>
 </template>
 
 <script>
-import ThreadList from '@/components/ThreadList'
 import sourceData from '@/data.json'
+import CategoryList from '@/components/CategoryList'
 export default {
   name: 'PageHome',
   components: {
-    ThreadList
+    CategoryList
   },
   data () {
     return {
-      threads: sourceData.threads
+      forums: sourceData.forums,
+      categories: sourceData.categories
     }
   }
 }
