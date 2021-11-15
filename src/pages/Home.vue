@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="push-top">
     <h1>Welcome to forum</h1>
     <category-list
       :forums="forums"
@@ -9,17 +9,18 @@
 </template>
 
 <script>
-import sourceData from '@/data.json'
 import CategoryList from '@/components/CategoryList'
 export default {
   name: 'PageHome',
   components: {
     CategoryList
   },
-  data () {
-    return {
-      forums: sourceData.forums,
-      categories: sourceData.categories
+  computed: {
+    forums () {
+      return this.$store.state.forums
+    },
+    categories () {
+      return this.$store.state.categories
     }
   }
 }

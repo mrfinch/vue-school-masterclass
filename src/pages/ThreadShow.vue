@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import sourceData from '@/data.json'
+
 import PostList from '@/components/PostList'
 import PostEditor from '@/components/PostEditor'
 export default {
@@ -25,13 +25,13 @@ export default {
     PostList,
     PostEditor
   },
-  data () {
-    return {
-      threads: sourceData.threads,
-      posts: sourceData.posts
-    }
-  },
   computed: {
+    threads () {
+      return this.$store.state.threads
+    },
+    posts () {
+      return this.$store.state.posts
+    },
     thread () {
       return this.threads.find(t => t.id === this.id)
     },
@@ -41,13 +41,11 @@ export default {
   },
   methods: {
     addPost (eventData) {
-      console.log(eventData)
       const post = {
         ...eventData.post,
         threadId: this.id
       }
-      this.posts.push(post)
-      this.thread.posts.push(post.id)
+      this.$store.dispatch('createPost', post)
     }
   }
 }
