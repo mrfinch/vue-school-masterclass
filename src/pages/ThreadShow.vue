@@ -10,6 +10,15 @@
         Edit Thread
       </router-link>
     </h1>
+    <p>
+      By <a href="#">{{ thread.author.name }}</a>, <app-date :timestamp="thread.publishedAt" />
+      <span
+        class="hide-mobile text-faded text-small"
+        style="float: right; margin-top: 2px;"
+      >
+        {{ thread.repliesCount }} replies by {{ thread.contributorsCount }} contributors
+      </span>
+    </p>
 
     <post-list
       :posts="threadPosts"
@@ -22,6 +31,7 @@
 
 import PostList from '@/components/PostList'
 import PostEditor from '@/components/PostEditor'
+import AppDate from '@/components/AppDate'
 export default {
   name: 'PageThreadShow',
   props: {
@@ -31,6 +41,7 @@ export default {
     }
   },
   components: {
+    AppDate,
     PostList,
     PostEditor
   },
@@ -42,7 +53,7 @@ export default {
       return this.$store.state.posts
     },
     thread () {
-      return this.threads.find(t => t.id === this.id)
+      return this.$store.getters.thread(this.id)
     },
     threadPosts () {
       return this.posts.filter(p => p.threadId === this.id)

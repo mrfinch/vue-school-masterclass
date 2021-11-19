@@ -8,24 +8,46 @@ export default createStore({
     authId: 'VXjpr2WHa8Ux4Bnggym8QFLdv5C3'
   },
   getters: {
-    authUser: state => {
-      const user = findById(state.users, state.authId)
-      if (!user) {
-        return null
+    authUser: (state, getters) => {
+      return getters.user(state.authId)
+    },
+    user: state => {
+      return (id) => {
+        const user = findById(state.users, id)
+        if (!user) {
+          return null
+        }
+        return {
+          ...user,
+          get posts () {
+            return state.posts.filter(p => p.userId === user.id)
+          },
+          get postsCount () {
+            return this.posts.length
+          },
+          get threads () {
+            return state.threads.filter(t => t.userId === user.id)
+          },
+          get threadsCount () {
+            return this.threads.length
+          }
+        }
       }
-      return {
-        ...user,
-        get posts () {
-          return state.posts.filter(p => p.userId === user.id)
-        },
-        get postsCount () {
-          return this.posts.length
-        },
-        get threads () {
-          return state.threads.filter(t => t.userId === user.id)
-        },
-        get threadsCount () {
-          return this.threads.length
+    },
+    thread: state => {
+      return (id) => {
+        const thread = findById(state.threads, id)
+        return {
+          ...thread,
+          get author () {
+            return findById(state.users, thread.userId)
+          },
+          get repliesCount () {
+            return thread.posts.length - 1
+          },
+          get contributorsCount () {
+            return thread.contributors.length
+          }
         }
       }
     }
@@ -37,7 +59,8 @@ export default createStore({
       post.userId = state.authId
       post.publishedAt = Math.floor(Date.now() / 1000)
       commit('setPost', { post })
-      commit('appendPostToThread', { threadId: post.threadId, postId })
+      commit('appendPostToThread', { parentId: post.threadId, childId: postId })
+      commit('appendContributorToThread', { parentId: post.threadId, childId: post.userId })
     },
     updateUser ({ commit }, user) {
       commit('setUser', { user, userId: user.id })
@@ -53,14 +76,14 @@ export default createStore({
         id: threadId
       }
       commit('setThread', { thread })
-      commit('appendThreadToForum', { forumId, threadId })
-      commit('appendThreadToUser', { threadId, userId })
+      commit('appendThreadToForum', { parentId: forumId, childId: threadId })
+      commit('appendThreadToUser', { childId: threadId, parentId: userId })
       dispatch('createPost', { threadId, text })
       return state.threads.find(t => t.id === threadId)
     },
     async updateThread ({ commit, state }, { text, title, id }) {
-      const thread = state.threads.find(t => t.id === id)
-      const post = state.posts.find(p => p.id === thread.posts[0])
+      const thread = findById(state.threads, id)
+      const post = findById(state.posts, thread.posts[0])
       const newThread = { ...thread, title }
       const newPost = { ...post, text }
       commit('setThread', { thread: newThread })
@@ -79,20 +102,19 @@ export default createStore({
       const userIndex = state.users.findIndex(u => u.id === userId)
       state.users[userIndex] = user
     },
-    appendPostToThread (state, { threadId, postId }) {
-      const thread = findById(state.threads, threadId)
-      thread.posts ||= []
-      thread.posts.push(postId)
-    },
-    appendThreadToForum (state, { forumId, threadId }) {
-      const forum = findById(state.forums, forumId)
-      forum.posts ||= []
-      forum.posts.push(threadId)
-    },
-    appendThreadToUser (state, { threadId, userId }) {
-      const user = findById(state.users, userId)
-      user.posts ||= []
-      user.posts.push(threadId)
-    }
+    appendPostToThread: appendChildToParentMutation({ parent: 'threads', child: 'posts' }),
+    appendThreadToForum: appendChildToParentMutation({ parent: 'forums', child: 'threads' }),
+    appendThreadToUser: appendChildToParentMutation({ parent: 'users', child: 'threads' }),
+    appendContributorToThread: appendChildToParentMutation({ parent: 'threads', child: 'contributors' })
   }
 })
+
+function appendChildToParentMutation ({ parent, child }) {
+  return (state, { parentId, childId }) => {
+    const resource = findById(state[parent], parentId)
+    resource[child] ||= []
+    if (!resource[child].includes(childId)) {
+      resource[child].push(childId)
+    }
+  }
+}
