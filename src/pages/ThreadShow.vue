@@ -1,9 +1,9 @@
 <template>
-  <div class="col-large push-top">
+  <div v-if="asyncDataStatus_ready && thread" class="col-large push-top">
     <h1>
       {{thread.title}}
       <router-link
-        :to="{ name: 'ThreadEdit', params: { threadId: thread.id }}"
+        :to="{ name: 'ThreadEdit', params: { threadId: this.id }}"
         class="btn-green btn-small"
         tag="button"
       >
@@ -11,7 +11,7 @@
       </router-link>
     </h1>
     <p>
-      By <a href="#">{{ thread.author.name }}</a>, <app-date :timestamp="thread.publishedAt" />
+      By <a href="#">{{ thread.author?.name }}</a>, <app-date :timestamp="thread.publishedAt" />
       <span
         class="hide-mobile text-faded text-small"
         style="float: right; margin-top: 2px;"
@@ -32,6 +32,7 @@
 import PostList from '@/components/PostList'
 import PostEditor from '@/components/PostEditor'
 import AppDate from '@/components/AppDate'
+import asyncDataStatus from '@/mixins/asyncDataStatus'
 export default {
   name: 'PageThreadShow',
   props: {
@@ -45,6 +46,9 @@ export default {
     PostList,
     PostEditor
   },
+  mixins: [
+    asyncDataStatus
+  ],
   computed: {
     threads () {
       return this.$store.state.threads
@@ -67,6 +71,18 @@ export default {
       }
       this.$store.dispatch('createPost', post)
     }
+  },
+  beforeCreate () {
+    // props wont be set so id will be undefined
+  },
+  async created () {
+    const thread = await this.$store.dispatch('fetchThread', { id: this.id })
+    await this.$store.dispatch('fetchUser', { id: thread.userId })
+
+    const posts = await this.$store.dispatch('fetchPosts', { ids: thread.posts })
+    const userIds = posts.map(p => p.userId)
+    await this.$store.dispatch('fetchUsers', { ids: userIds })
+    this.asyncDataStatus_fetched()
   }
 }
 </script>

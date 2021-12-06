@@ -8,9 +8,9 @@
         <div>
           <p>
 <!--            <router-link :to="`/thread/${thread.id}`">{{ thread.title }}</router-link>-->
-            <router-link :to="{ name: 'ThreadShow', params: { id: thread.id } }">{{ thread.title }}</router-link>
+            <router-link v-if="thread.id" :to="{ name: 'ThreadShow', params: { id: thread.id } }">{{ thread.title }}</router-link>
           </p>
-          <p class="text-faded text-xsmall">
+          <p class="text-faded text-xsmall" v-if="thread.id">
             By <a href="#">{{ userById(thread.userId).name }}</a>, <app-date :timestamp="thread.publishedAt" />.
           </p>
         </div>
@@ -26,7 +26,7 @@
             <p class="text-xsmall">
               <a href="#">{{ userById(thread.userId).name }}</a>
             </p>
-            <p class="text-xsmall text-faded"><app-date :timestamp="thread.publishedAt" /></p>
+            <p class="text-xsmall text-faded" v-if="thread.publishedAt"><app-date :timestamp="thread.publishedAt" /></p>
           </div>
         </div>
       </div>
@@ -45,19 +45,13 @@ export default {
     }
   },
   computed: {
-    posts () {
-      return this.$store.state.posts
-    },
     users () {
       return this.$store.state.users
     }
   },
   methods: {
-    postById (postId) {
-      return this.posts.find(p => p.id === postId)
-    },
     userById (userId) {
-      return this.users.find(u => u.id === userId)
+      return this.users.find(u => u.id === userId) || {}
     }
   }
 }
