@@ -7,6 +7,10 @@ import firebaseConfig from '@/config/firebase'
 import FontAwesome from '@/plugins/FontAwesome'
 
 firebase.initializeApp(firebaseConfig)
+firebase.auth().onAuthStateChanged((user) => {
+  store.dispatch('unsubscribeAuthUserSnapshot')
+  store.dispatch('fetchAuthUser')
+})
 
 const forumApp = createApp(App)
 forumApp.use(router)

@@ -5,13 +5,14 @@ import getters from '@/store/getters'
 
 export default createStore({
   state: {
-    authId: 'VXjpr2WHa8Ux4Bnggym8QFLdv5C3',
+    authId: null,
     categories: [],
     forums: [],
     threads: [],
     posts: [],
     users: [],
-    unsubscribes: []
+    unsubscribes: [],
+    authUnsubscribe: null
   },
   getters,
   actions,

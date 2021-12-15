@@ -47,6 +47,9 @@ export default {
     ...mapGetters({
       user: 'authUser'
     })
+  },
+  created () {
+    this.$emit('ready')
   }
 }
 </script>
