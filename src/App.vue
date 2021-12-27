@@ -4,7 +4,7 @@
     <router-view
       v-show="showPage"
       @ready="onPageReady"
-      :key="$route.path"
+      :key="`${$route.path}${JSON.stringify($route.query)}`"
     />
     <app-spinner v-show="!showPage" class="container" />
   </div>
