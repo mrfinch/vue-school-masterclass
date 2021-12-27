@@ -26,10 +26,10 @@ export default {
   },
   computed: {
     thread () {
-      return this.$store.state.threads.find(t => t.id === this.threadId)
+      return this.$store.state.threads.items.find(t => t.id === this.threadId)
     },
     text () {
-      return this.$store.state.posts.find(p => p.id === this.thread.posts[0])?.text
+      return this.$store.state.posts.items.find(p => p.id === this.thread.posts[0])?.text
     }
   },
   mixins: [
@@ -37,7 +37,7 @@ export default {
   ],
   methods: {
     async save ({ title, text }) {
-      const thread = await this.$store.dispatch('updateThread', { text, title, id: this.threadId })
+      const thread = await this.$store.dispatch('threads/updateThread', { text, title, id: this.threadId })
       this.$router.push({ name: 'ThreadShow', params: { id: thread.id } })
     },
     cancel () {
@@ -45,8 +45,8 @@ export default {
     }
   },
   async created () {
-    const thread = await this.$store.dispatch('fetchThread', { id: this.threadId })
-    await this.$store.dispatch('fetchPost', { id: thread.posts[0] })
+    const thread = await this.$store.dispatch('threads/fetchThread', { id: this.threadId })
+    await this.$store.dispatch('posts/fetchPost', { id: thread.posts[0] })
     this.asyncDataStatus_fetched()
   }
 }

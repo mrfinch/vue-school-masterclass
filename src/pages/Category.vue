@@ -32,14 +32,15 @@ export default {
   },
   computed: {
     category () {
-      return this.$store.state.categories.find(c => c.id === this.id)
+      return this.$store.state.categories.items.find(c => c.id === this.id)
     },
     forums () {
-      return this.$store.state.forums.filter(f => f.categoryId === this.id)
+      return this.$store.state.forums.items.filter(f => f.categoryId === this.id)
     }
   },
   methods: {
-    ...mapActions(['fetchCategory', 'fetchForums'])
+    ...mapActions('categories', ['fetchCategory']),
+    ...mapActions('forums', ['fetchForums'])
   },
   async created () {
     // const category = await this.$store.dispatch('fetchCategory', { id: this.id })

@@ -35,9 +35,12 @@
 </template>
 
 <script>
-
+import AppDate from '@/components/AppDate'
 export default {
   name: 'ThreadList',
+  components: {
+    AppDate
+  },
   props: {
     threads: {
       type: Array,
@@ -46,7 +49,7 @@ export default {
   },
   computed: {
     users () {
-      return this.$store.state.users
+      return this.$store.state.users.items
     }
   },
   methods: {

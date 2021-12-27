@@ -44,19 +44,23 @@ export default {
   methods: {
     async signIn () {
       try {
-        await this.$store.dispatch('signInWithEmailAndPassword', { ...this.form })
-        this.$router.push('/')
+        await this.$store.dispatch('auth/signInWithEmailAndPassword', { ...this.form })
+        this.successRedirect()
       } catch (err) {
         alert(err.message)
       }
     },
     async signInWithGoogle () {
       try {
-        await this.$store.dispatch('signInWithGoogle')
-        this.$router.push('/')
+        await this.$store.dispatch('auth/signInWithGoogle')
+        this.successRedirect()
       } catch (err) {
         alert(err.message)
       }
+    },
+    successRedirect () {
+      const redirectTo = this.$route.query.redirectTo || { name: 'Home' }
+      this.$router.push(redirectTo)
     }
   },
   created () {

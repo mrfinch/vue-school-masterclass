@@ -33,18 +33,18 @@ export default {
   ],
   computed: {
     forum () {
-      return this.$store.state.forums.find(f => f.id === this.id)
+      return this.$store.state.forums.items.find(f => f.id === this.id)
     },
     threads () {
-      return this.forum?.threads.map(t => this.$store.getters.thread(t))
+      return this.forum?.threads.map(t => this.$store.getters['threads/thread'](t))
     }
   },
   async created () {
-    const forum = await this.$store.dispatch('fetchForum', { id: this.id })
+    const forum = await this.$store.dispatch('forums/fetchForum', { id: this.id })
     const threadIds = forum.threads
-    const threads = await this.$store.dispatch('fetchThreads', { ids: threadIds })
+    const threads = await this.$store.dispatch('threads/fetchThreads', { ids: threadIds })
     const userIds = threads.map(t => t.userId)
-    await this.$store.dispatch('fetchUsers', { ids: userIds })
+    await this.$store.dispatch('users/fetchUsers', { ids: userIds })
     this.asyncDataStatus_fetched()
   }
 }

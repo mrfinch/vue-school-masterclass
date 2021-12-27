@@ -34,7 +34,7 @@
           href="#" style="margin-left: auto"
           class="link-unstyled" title="Make a Change"
           @click.prevent="toggleEditMode(post.id)"
-          v-if="post.userId === $store.state.authId"
+          v-if="post.userId === $store.state.auth.authId"
         >
           <fa icon="pencil-alt" />
         </a>
@@ -52,11 +52,13 @@
 
 <script>
 import PostEditor from '@/components/PostEditor'
+import AppDate from '@/components/AppDate'
 import { mapActions } from 'vuex'
 export default {
   name: 'PostList',
   components: {
-    PostEditor
+    PostEditor,
+    AppDate
   },
   props: {
     posts: {
@@ -71,13 +73,13 @@ export default {
   },
   computed: {
     users () {
-      return this.$store.state.users
+      return this.$store.state.users.items
     }
   },
   methods: {
-    ...mapActions(['updatePost']),
+    ...mapActions('posts', ['updatePost']),
     userById (userId) {
-      return this.$store.getters.user(userId)
+      return this.$store.getters['users/user'](userId)
     },
     toggleEditMode (id) {
       this.editing = id === this.editing ? null : id

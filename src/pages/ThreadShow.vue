@@ -3,6 +3,7 @@
     <h1>
       {{thread.title}}
       <router-link
+        v-if="thread.user === authUser?.id"
         :to="{ name: 'ThreadEdit', params: { threadId: this.id }}"
         class="btn-green btn-small"
         tag="button"
@@ -23,7 +24,10 @@
     <post-list
       :posts="threadPosts"
     />
-    <post-editor @save="addPost" />
+    <post-editor v-if="authUser" @save="addPost" />
+    <div v-else class="text-center">
+      <router-link :to="{ name: 'SignIn', query: { redirectTo: $route.path } }">Sign In</router-link> or <router-link :to="{ name: 'Register', query: { redirectTo: $route.path } }">Register</router-link> to reply
+    </div>
   </div>
 </template>
 
@@ -33,6 +37,7 @@ import PostList from '@/components/PostList'
 import PostEditor from '@/components/PostEditor'
 import AppDate from '@/components/AppDate'
 import asyncDataStatus from '@/mixins/asyncDataStatus'
+import { mapGetters } from 'vuex'
 export default {
   name: 'PageThreadShow',
   props: {
@@ -50,14 +55,15 @@ export default {
     asyncDataStatus
   ],
   computed: {
+    ...mapGetters('auth', ['authUser']),
     threads () {
-      return this.$store.state.threads
+      return this.$store.state.threads.items
     },
     posts () {
-      return this.$store.state.posts
+      return this.$store.state.posts.items
     },
     thread () {
-      return this.$store.getters.thread(this.id)
+      return this.$store.getters['threads/thread'](this.id)
     },
     threadPosts () {
       return this.posts.filter(p => p.threadId === this.id)
@@ -69,19 +75,19 @@ export default {
         ...eventData.post,
         threadId: this.id
       }
-      this.$store.dispatch('createPost', post)
+      this.$store.dispatch('posts/createPost', post)
     }
   },
   beforeCreate () {
     // props wont be set so id will be undefined
   },
   async created () {
-    const thread = await this.$store.dispatch('fetchThread', { id: this.id })
-    await this.$store.dispatch('fetchUser', { id: thread.userId })
+    const thread = await this.$store.dispatch('threads/fetchThread', { id: this.id })
+    await this.$store.dispatch('users/fetchUser', { id: thread.userId })
 
-    const posts = await this.$store.dispatch('fetchPosts', { ids: thread.posts })
+    const posts = await this.$store.dispatch('posts/fetchPosts', { ids: thread.posts })
     const userIds = posts.map(p => p.userId)
-    await this.$store.dispatch('fetchUsers', { ids: userIds })
+    await this.$store.dispatch('users/fetchUsers', { ids: userIds })
     this.asyncDataStatus_fetched()
   }
 }
