@@ -1,5 +1,11 @@
 import firebase from 'firebase'
-import { appendChildToParentMutation, docToResource, findById } from '@/helpers'
+import {
+  appendChildToParentMutation,
+  docToResource,
+  findById,
+  makeFetchItemAction,
+  makeFetchItemsAction
+} from '@/helpers'
 
 export default {
   namespaced: true,
@@ -7,12 +13,8 @@ export default {
     items: []
   },
   actions: {
-    fetchUser ({ dispatch }, { id }) {
-      return dispatch('fetchItem', { id, resource: 'users' }, { root: true })
-    },
-    fetchUsers ({ dispatch }, { ids }) {
-      return dispatch('fetchItems', { ids, resource: 'users' }, { root: true })
-    },
+    fetchUser: makeFetchItemAction({ resource: 'users' }),
+    fetchUsers: makeFetchItemsAction({ resource: 'users' }),
     async createUser ({ commit }, { id, email, name, username, avatar = null }) {
       const registeredAt = firebase.firestore.FieldValue.serverTimestamp()
       const usernameLower = username.toLowerCase()

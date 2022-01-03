@@ -11,7 +11,7 @@
         <a href="#" class="user-name">{{ userById(post.userId).name }}</a>
 
         <a href="#">
-          <img class="avatar-large" :src="userById(post.userId).avatar" alt="">
+          <app-avatar-img class="avatar-large" :src="userById(post.userId).avatar" alt="" />
         </a>
 
         <p class="desktop-only text-small">{{userById(post.userId).postsCount}} posts</p>
@@ -54,9 +54,11 @@
 import PostEditor from '@/components/PostEditor'
 import AppDate from '@/components/AppDate'
 import { mapActions } from 'vuex'
+import AppAvatarImg from '@/components/AppAvatarImg'
 export default {
   name: 'PostList',
   components: {
+    AppAvatarImg,
     PostEditor,
     AppDate
   },

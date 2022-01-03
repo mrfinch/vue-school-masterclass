@@ -1,4 +1,5 @@
 import firebase from 'firebase'
+import { makeFetchItemAction, makeFetchItemsAction } from '@/helpers'
 
 export default {
   namespaced: true,
@@ -6,12 +7,8 @@ export default {
     items: []
   },
   actions: {
-    fetchCategories ({ dispatch }, { ids }) {
-      return dispatch('fetchItems', { ids, resource: 'categories' }, { root: true })
-    },
-    fetchCategory ({ dispatch }, { id }) {
-      return dispatch('fetchItem', { id, resource: 'categories' }, { root: true })
-    },
+    fetchCategories: makeFetchItemsAction({ resource: 'categories' }),
+    fetchCategory: makeFetchItemAction({ resource: 'categories' }),
     fetchAllCategories ({ commit }) {
       return new Promise((resolve) => {
         firebase.firestore().collection('categories').onSnapshot((querySnapshot) => {

@@ -20,7 +20,7 @@
             {{ thread.repliesCount }} replies
           </p>
 
-<!--          <AppAvatarImg class="avatar-medium" :src="userById(thread.userId).avatar" />-->
+          <app-avatar-img class="avatar-medium" :src="userById(thread.userId).avatar" />
 
           <div>
             <p class="text-xsmall">
@@ -36,9 +36,11 @@
 
 <script>
 import AppDate from '@/components/AppDate'
+import AppAvatarImg from '@/components/AppAvatarImg'
 export default {
   name: 'ThreadList',
   components: {
+    AppAvatarImg,
     AppDate
   },
   props: {

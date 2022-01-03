@@ -38,6 +38,8 @@ import PostEditor from '@/components/PostEditor'
 import AppDate from '@/components/AppDate'
 import asyncDataStatus from '@/mixins/asyncDataStatus'
 import { mapGetters } from 'vuex'
+import useNotifications from '@/composables/useNotifications'
+import difference from 'lodash/difference'
 export default {
   name: 'PageThreadShow',
   props: {
@@ -54,6 +56,12 @@ export default {
   mixins: [
     asyncDataStatus
   ],
+  setup () {
+    const { addNotification } = useNotifications()
+    return {
+      addNotification
+    }
+  },
   computed: {
     ...mapGetters('auth', ['authUser']),
     threads () {
@@ -76,18 +84,44 @@ export default {
         threadId: this.id
       }
       this.$store.dispatch('posts/createPost', post)
+    },
+    async fetchPostsWithUsers (ids) {
+      const posts = await this.$store.dispatch(
+        'posts/fetchPosts',
+        {
+          ids,
+          onSnapshot: ({ isLocal, previousItem }) => {
+            if (!this.asyncDataStatus_ready || isLocal || (previousItem?.edited || !previousItem?.edited?.at)) return
+            this.addNotification({ message: 'Thread recently updated', timeout: 5000 })
+          }
+        }
+      )
+      const userIds = posts.map(p => p.userId).concat(this.thread.userId)
+      await this.$store.dispatch('users/fetchUsers', { ids: userIds })
     }
   },
   beforeCreate () {
     // props wont be set so id will be undefined
   },
   async created () {
-    const thread = await this.$store.dispatch('threads/fetchThread', { id: this.id })
+    const thread = await this.$store.dispatch(
+      'threads/fetchThread',
+      {
+        id: this.id,
+        onSnapshot: ({ isLocal, item, previousItem }) => {
+          if (!this.asyncDataStatus_ready || isLocal) return
+          const newPostIds = difference(item.posts, previousItem.posts)
+          const hasNewPosts = newPostIds.length > 0
+          if (hasNewPosts) {
+            this.fetchPostsWithUsers(newPostIds)
+          } else {
+            this.addNotification({ message: 'Thread recently updated', timeout: 5000 })
+          }
+        }
+      }
+    )
     await this.$store.dispatch('users/fetchUser', { id: thread.userId })
-
-    const posts = await this.$store.dispatch('posts/fetchPosts', { ids: thread.posts })
-    const userIds = posts.map(p => p.userId)
-    await this.$store.dispatch('users/fetchUsers', { ids: userIds })
+    await this.fetchPostsWithUsers(thread.posts)
     this.asyncDataStatus_fetched()
   }
 }
