@@ -1,6 +1,6 @@
 <template>
   <div class="profile-card">
-    <form @submit.prevent="save">
+    <vee-form @submit="save">
       <p class="text-center avatar-edit">
         <label>
           <app-avatar-img :src="activeUser.avatar" :alt="user.name" class="avatar-xlarge img-update" />
@@ -42,16 +42,21 @@
         <input autocomplete="off" class="form-input" id="user_email" v-model="activeUser.email">
       </div>
 
-      <div class="form-group">
-        <label class="form-label" for="user_location">Location</label>
-        <input autocomplete="off" class="form-input" id="user_location" v-model="activeUser.location">
-      </div>
+      <app-form-field
+        label="Location" name="location"
+        v-model="activeUser.location"
+        list="locations"
+        @mouseenter="loadLocationOptions"
+      />
+      <datalist id="locations">
+        <option v-for="location in locationOptions" :value="location.name.common" :key="location.name.common" />
+      </datalist>
 
       <div class="btn-group space-between">
         <button class="btn-ghost" @click.prevent="cancel">Cancel</button>
         <button type="submit" class="btn-blue">Save</button>
       </div>
-    </form>
+    </vee-form>
   </div>
 </template>
 
@@ -59,9 +64,10 @@
 import { mapActions } from 'vuex'
 import AppSpinner from '@/components/AppSpinner'
 import AppAvatarImg from '@/components/AppAvatarImg'
+import AppFormField from '@/components/AppFormField'
 export default {
   name: 'UserProfileCardEditor',
-  components: { AppAvatarImg, AppSpinner },
+  components: { AppFormField, AppAvatarImg, AppSpinner },
   props: {
     user: {
       type: Object,
@@ -71,11 +77,17 @@ export default {
   data () {
     return {
       uploadingImage: false,
-      activeUser: { ...this.user }
+      activeUser: { ...this.user },
+      locationOptions: []
     }
   },
   methods: {
     ...mapActions('auth', ['uploadAvatar']),
+    async loadLocationOptions () {
+      if (this.locationOptions.length) return
+      const res = await fetch('https://restcountries.com/v3/all')
+      this.locationOptions = await res.json()
+    },
     async handleAvatarUpload (e) {
       this.uploadingImage = true
       const file = e.target.files[0]

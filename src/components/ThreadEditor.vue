@@ -1,25 +1,28 @@
 <template>
-  <form @submit.prevent="save">
-    <div class="form-group">
-      <label for="thread_title">Title:</label>
-      <input type="text" id="thread_title" class="form-input" name="title" v-model="form.title">
-    </div>
+  <vee-form @submit="save">
+    <app-form-field
+      name="title" v-model="form.title" label="Title"
+      rules="required"
+    />
 
-    <div class="form-group">
-      <label for="thread_content">Content:</label>
-      <textarea id="thread_content" class="form-input" name="content" rows="8" cols="140" v-model="form.text"></textarea>
-    </div>
+    <app-form-field
+      name="content" v-model="form.text" label="Content"
+      rules="required" as="textarea"
+      rows="8" cols="140"
+    />
 
     <div class="btn-group">
       <button @click="cancel" class="btn btn-ghost">Cancel</button>
       <button class="btn btn-blue" type="submit" name="Publish">{{ existing ? 'Update' : 'Publish' }}</button>
     </div>
-  </form>
+  </vee-form>
 </template>
 
 <script>
+import AppFormField from '@/components/AppFormField'
 export default {
   name: 'ThreadEditor',
+  components: { AppFormField },
   props: {
     title: {
       type: String,

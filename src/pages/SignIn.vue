@@ -2,17 +2,17 @@
   <div class="flex-grid justify-center">
     <div class="col-2">
 
-      <form @submit.prevent="signIn" class="card card-form">
+      <vee-form @submit="signIn" class="card card-form">
         <h1 class="text-center">Login</h1>
 
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input v-model="form.email" id="email" type="text" class="form-input">
-        </div>
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input v-model="form.password" id="password" type="password" class="form-input">
-        </div>
+        <app-form-field
+          v-model="form.email" name="email" label="Email"
+          rules="required|email" type="email"
+        />
+        <app-form-field
+          v-model="form.password" name="password" label="Password"
+          type="password" rules="required"
+        />
 
         <div class="push-top">
           <button type="submit" class="btn-blue btn-block">Log in</button>
@@ -21,7 +21,7 @@
         <div class="form-actions text-right">
           <router-link :to="{ name: 'Register' }">Create an account?</router-link>
         </div>
-      </form>
+      </vee-form>
 
       <div class="push-top text-center">
         <button @click="signInWithGoogle" class="btn-red btn-xsmall"><i class="fa fa-google fa-btn"></i>Sign in with Google</button>
@@ -31,8 +31,10 @@
 </template>
 
 <script>
+import AppFormField from '@/components/AppFormField'
 export default {
   name: 'SignIn',
+  components: { AppFormField },
   data () {
     return {
       form: {
