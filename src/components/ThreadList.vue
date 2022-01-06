@@ -4,7 +4,8 @@
 
       <h2 class="list-title">Threads</h2>
 
-      <div v-for="thread in threads" :key="thread.id" class="thread">
+      <div v-if="threads.length">
+        <div v-for="thread in threads" :key="thread.id" class="thread">
         <div>
           <p>
 <!--            <router-link :to="`/thread/${thread.id}`">{{ thread.title }}</router-link>-->
@@ -30,6 +31,10 @@
           </div>
         </div>
       </div>
+      </div>
+    </div>
+    <div v-if="!threads.length" style="padding: 10px; text-align: center;">
+      <em>No threads available</em>
     </div>
   </div>
 </template>

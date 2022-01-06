@@ -1,4 +1,4 @@
-import firebase from 'firebase'
+import firebase from '@/helpers/firebase'
 import {
   appendChildToParentMutation,
   docToResource,
@@ -64,6 +64,9 @@ export default {
           },
           get threads () {
             return rootState.threads.items.filter(t => t.userId === user.id)
+          },
+          get threadIds () {
+            return user.threads
           },
           get threadsCount () {
             return user.threads?.length || 0

@@ -1,4 +1,4 @@
-import firebase from 'firebase'
+import firebase from '@/helpers/firebase'
 import useNotifications from '@/composables/useNotifications'
 
 export default {
@@ -9,6 +9,13 @@ export default {
     authObserverUnsubscribe: null
   },
   actions: {
+    updateEmail ({ state }, { email }) {
+      return firebase.auth().currentUser.updateEmail(email)
+    },
+    async reauthenticate ({ state }, { email, password }) {
+      const credential = firebase.auth.EmailAuthProvider.credential(email, password)
+      await firebase.auth().currentUser.reauthenticateWithCredential(credential)
+    },
     initAuthentication ({ dispatch, commit, state }) {
       if (state.authObserverUnsubscribe) {
         state.authObserverUnsubscribe()

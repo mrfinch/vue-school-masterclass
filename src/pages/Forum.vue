@@ -1,4 +1,5 @@
 <template>
+  <span>
   <div class="col-full push-top" v-if="asyncDataStatus_ready && forum">
     <div class="forum-header">
       <div class="forum-details">
@@ -17,6 +18,7 @@
       active-color="#57AD8D"
     />
   </div>
+  </span>
 </template>
 
 <script>
@@ -51,7 +53,7 @@ export default {
         .map((t) => this.$store.getters['threads/thread'](t.id))
     },
     threadCount () {
-      return this.forum?.threads.length || 0
+      return this.forum?.threads?.length || 0
     },
     totalPages () {
       return Math.ceil(this.threadCount / this.perPage)
@@ -61,7 +63,7 @@ export default {
     const forum = await this.$store.dispatch('forums/fetchForum', { id: this.id })
     const threadIds = forum.threads
     const threads = await this.$store.dispatch('threads/fetchThreadsByPage', { ids: threadIds, page: this.page, perPage: this.perPage })
-    const userIds = threads.map(t => t.userId)
+    const userIds = threads?.map(t => t.userId)
     await this.$store.dispatch('users/fetchUsers', { ids: userIds })
     this.asyncDataStatus_fetched()
   },

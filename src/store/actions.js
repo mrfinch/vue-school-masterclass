@@ -1,5 +1,5 @@
 import { findById } from '@/helpers'
-import firebase from 'firebase'
+import firebase from '@/helpers/firebase'
 
 export default {
   fetchItem ({ commit, state }, { id, resource, handleUnsubscribe = null, once, onSnapshot = null }) {
@@ -30,6 +30,7 @@ export default {
     })
   },
   fetchItems ({ dispatch }, { ids, resource, onSnapshot = null }) {
+    ids = ids || []
     return Promise.all(
       ids.map(id => dispatch('fetchItem', { id, resource, onSnapshot }))
     )
@@ -39,5 +40,8 @@ export default {
       unsubscribe()
     })
     commit('clearAllUnsubscribes')
+  },
+  clearItems ({ commit }, { modules = [] }) {
+    commit('clearItems', { modules })
   }
 }

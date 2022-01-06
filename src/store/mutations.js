@@ -9,5 +9,12 @@ export default {
   },
   clearAllUnsubscribes (state) {
     state.unsubscribes = []
+  },
+  clearItems (state, { modules = [] }) {
+    modules.forEach((module) => {
+      if (state[module]) {
+        state[module].items = []
+      }
+    })
   }
 }

@@ -57,6 +57,11 @@
         <button type="submit" class="btn-blue">Save</button>
       </div>
     </vee-form>
+    <user-profile-card-editor-reauthenticate
+      v-model="needsReAuth"
+      @success="onReAuthenticated"
+      @fail="onReAuthenticatedFailed"
+    />
   </div>
 </template>
 
@@ -65,9 +70,11 @@ import { mapActions } from 'vuex'
 import AppSpinner from '@/components/AppSpinner'
 import AppAvatarImg from '@/components/AppAvatarImg'
 import AppFormField from '@/components/AppFormField'
+import UserProfileCardEditorReauthenticate from '@/components/UserProfileCardEditorReauthenticate'
+import useNotifications from '@/composables/useNotifications'
 export default {
   name: 'UserProfileCardEditor',
-  components: { AppFormField, AppAvatarImg, AppSpinner },
+  components: { AppFormField, AppAvatarImg, AppSpinner, UserProfileCardEditorReauthenticate },
   props: {
     user: {
       type: Object,
@@ -78,7 +85,14 @@ export default {
     return {
       uploadingImage: false,
       activeUser: { ...this.user },
-      locationOptions: []
+      locationOptions: [],
+      needsReAuth: false
+    }
+  },
+  setup () {
+    const { addNotification } = useNotifications()
+    return {
+      addNotification
     }
   },
   methods: {
@@ -95,10 +109,27 @@ export default {
       this.activeUser.avatar = uploadedImage || this.activeUser.avatar
       this.uploadingImage = false
     },
-    save () {
+    async save () {
       console.log('save')
-      this.$store.dispatch('users/updateUser', { ...this.activeUser })
+      const emailChanged = this.activeUser.email !== this.user.email
+      if (emailChanged) {
+        this.needsReAuth = true
+      } else {
+        await this.saveUserData()
+      }
+    },
+    async onReAuthenticated () {
+      await this.$store.dispatch('auth/updateEmail', { email: this.activeUser.email })
+      await this.saveUserData()
+    },
+    async onReAuthenticatedFailed () {
+      this.addNotification({ message: 'Error updating user', type: 'error', timeout: 5000 })
       this.$router.push({ name: 'Profile' })
+    },
+    async saveUserData () {
+      await this.$store.dispatch('users/updateUser', { ...this.activeUser, threads: this.activeUser.threadIds })
+      this.$router.push({ name: 'Profile' })
+      this.addNotification({ message: 'User successfully updated', timeout: 5000 })
     },
     cancel () {
       console.log('cancel')

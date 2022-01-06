@@ -1,5 +1,5 @@
 import { appendChildToParentMutation, docToResource, findById, makeFetchItemAction, makeFetchItemsAction } from '@/helpers'
-import firebase from 'firebase'
+import firebase from '@/helpers/firebase'
 import chunk from 'lodash/chunk'
 
 export default {
@@ -33,7 +33,7 @@ export default {
       commit('setItem', { item: { ...newThread.data(), id: newThread.id }, resource: 'threads' }, { root: true })
       commit('forums/appendThreadToForum', { parentId: forumId, childId: threadRef.id }, { root: true })
       commit('users/appendThreadToUser', { childId: threadRef.id, parentId: userId }, { root: true })
-      await dispatch('posts/createPost', { threadId: threadRef.id, text }, { root: true })
+      await dispatch('posts/createPost', { threadId: threadRef.id, text, firstInThread: true }, { root: true })
       return state.items.find(t => t.id === threadRef.id)
     },
     async updateThread ({ commit, state, rootState }, { text, title, id }) {
@@ -78,6 +78,7 @@ export default {
             return thread.posts.length - 1
           },
           get contributorsCount () {
+            if (!thread.contributors) return 0
             return thread.contributors.length
           }
         }
