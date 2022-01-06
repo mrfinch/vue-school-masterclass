@@ -1,6 +1,11 @@
 <template>
   <span>
   <div class="col-full push-top" v-if="asyncDataStatus_ready && forum">
+    <AppHead>
+      <title>{{forum?.name}}</title>
+      <meta property="og:title" :content="forum?.name">
+      <meta name="twitter:title" content="Vue.js 3 Master Class Forum">
+    </AppHead>
     <div class="forum-header">
       <div class="forum-details">
         <h1>{{ forum.name }}</h1>
